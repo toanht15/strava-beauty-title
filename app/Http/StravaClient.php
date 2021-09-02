@@ -17,9 +17,9 @@ class StravaClient
     {
         try {
             $options = [
-                'clientId' => 69573,
-                'clientSecret' => '3bd7e053018564c39cc8da5f846a0d91954eded8',
-                'redirectUri' => 'http://127.0.0.1:8000/callback'
+                'clientId' => env('STRAVA_CLIENT_ID'),
+                'clientSecret' => env('STRAVA_CLIENT_SECRET'),
+                'redirectUri' => env('STRAVA_AUTH_REDIRECT_URL')
             ];
             $oauth = new OAuth($options);
             print '<a href="' . $oauth->getAuthorizationUrl([
@@ -65,7 +65,7 @@ class StravaClient
     {
         try {
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
-            $service = new REST('18872b47ef9f855c2df77d78ffd3bf0d16cd6a36', $adapter);  // Define your user token here.
+            $service = new REST(env('STRAVA_ACCESS_TOKEN'), $adapter);  // Define your user token here.
             $client = new Client($service);
 
             $quoteClient = new QuoteClient();
