@@ -58,26 +58,22 @@ class ActivityController extends Controller
         // Your verify token. Should be a random string.
         $VERIFY_TOKEN = "STRAVA";
         // Parses the query params
-//        $mode = $request->input('hub_mode');
-//        $token = $request->input('hub_verify_token');
+        $mode = $request->input('hub_mode');
+        $token = $request->input('hub_verify_token');
         $challenge = $request->query('hub_challenge');
-//        echo '{"hub.challenge":"'.$challenge.'"}';
-        return response()->json([
-            'hub.challenge' => $challenge,
-        ]);
 //         Checks if a token and mode is in the query string of the request
-//        if ($mode && $token) {
-//            // Verifies that the mode and token sent are valid
-//            if ($mode === 'subscribe' && $token === $VERIFY_TOKEN) {
-//                // Responds with the challenge token from the request
-//                return response()->json([
-//                    'hub.challenge' => $challenge,
-//                ]);
-//            } else {
-//                // Responds with '403 Forbidden' if verify tokens do not match
-//                return "Fail";
-//            }
-//        }
+        if ($mode && $token) {
+            // Verifies that the mode and token sent are valid
+            if ($mode === 'subscribe' && $token === $VERIFY_TOKEN) {
+                // Responds with the challenge token from the request
+                return response()->json([
+                    'hub.challenge' => $challenge,
+                ]);
+            } else {
+                // Responds with '403 Forbidden' if verify tokens do not match
+                return "Fail";
+            }
+        }
     }
 
 

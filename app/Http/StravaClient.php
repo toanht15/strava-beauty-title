@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Illuminate\Http\Response;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use Strava\API\OAuth;
 use Strava\API\Exception;
@@ -97,12 +98,18 @@ class StravaClient
 
         $response = $adapter->request('POST', 'push_subscriptions', [
             'form_params' => [
-                'client_id' => '69573',
-                'client_secret' => '3bd7e053018564c39cc8da5f846a0d91954eded8',
-                'callback_url' => 'http://127.0.0.1:8000/webhook',
-                'verify_token' => 'STRAVA',
+                'client_id' => env('STRAVA_CLIENT_ID'),
+                'client_secret' => env('STRAVA_CLIENT_SECRET'),
+                'callback_url' => env('STRAVA_WEBHOOK_CALLBACK_URL'),
+                'verify_token' => env('STRAVA_WEBHOOK_VERIFY_TOKEN'),
             ]
         ]);
+
+        if ($response->status() === Response::HTTP_CREATED) {
+            return json_decode($response->body())->id;
+        } else {
+            return $response;
+        }
     }
 
     public function checkSubscribe() {
