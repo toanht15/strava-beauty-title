@@ -94,7 +94,7 @@ class ActivityController extends Controller
         $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
         $stravaClient = new StravaClient();
-        $stravaClient->showInfo();
+//        $stravaClient->showInfo();
 
         Log::channel('strava')->info(json_encode($request->all()));
 
