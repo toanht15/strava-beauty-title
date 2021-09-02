@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\StravaClient;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class ActivityController extends Controller
 {
@@ -82,38 +84,21 @@ class ActivityController extends Controller
         }
     }
 
+    public function updateActivity(Request $request) {
+        $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
+        $event_time = $request['event_time']; // time the event occurred
+        $object_id = $request['object_id']; // activity ID | athlete ID
+        $object_type = $request['object_type']; // "activity" | "athlete"
+        $owner_id = $request['owner_id']; // athlete ID
+        $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
+        $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        $stravaClient = new StravaClient();
+        $stravaClient->showInfo();
+
+        Log::channel('strava')->info(json_encode($request->all()));
+
+        return response('EVENT_RECEIVED', Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

@@ -26,7 +26,7 @@ Route::resource('activities', ActivityController::class);
 Route::get('/callback', [ActivityController::class, 'callback']);
 Route::get('/info', [ActivityController::class, 'showInfo']);
 
-Route::post('/webhook', [ActivityController::class, 'showInfo']);
+Route::post('/webhook', [ActivityController::class, 'updateActivity'])->withoutMiddleware(VerifyCsrfToken::class);
 Route::get('/webhook', [ActivityController::class, 'validateCallback']);
 
 Route::get('/subscribe', [ActivityController::class, 'subscribe']);
@@ -42,6 +42,7 @@ Route::get('/refresh', [ActivityController::class, 'refresh']);
 //    return app(StravaWebhookService::class)->validate($mode, $token, $challenge);
 //});
 //
+
 //Route::post('/webhook', function (Request $request) {
 //    $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
 //    $event_time = $request['event_time']; // time the event occurred

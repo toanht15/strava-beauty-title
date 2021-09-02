@@ -86,8 +86,6 @@ class StravaClient
             print "<pre>";
             print_r($activity);
             print "</pre>";
-
-
         } catch (Exception $e) {
             print $e->getMessage();
         }
