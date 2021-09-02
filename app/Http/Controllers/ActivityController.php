@@ -28,6 +28,7 @@ class ActivityController extends Controller
         $state = $request->input('state');
 
         $stravaClient->getToken($code);
+        Log::channel("slack")->info("Strava auth code: " . $code);
         return $code;
     }
 
@@ -93,10 +94,12 @@ class ActivityController extends Controller
         $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
         $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-        $stravaClient = new StravaClient();
-//        $stravaClient->showInfo();
+//        if ($aspect_type == "create" && $object_type == "activity") {
+//            $stravaClient = new StravaClient();
+//            $stravaClient->updateActivityTitle($object_id);
+//        }
 
-        Log::channel('strava')->info(json_encode($request->all()));
+        Log::channel('slack')->info(json_encode($request->all()));
 
         return response('EVENT_RECEIVED', Response::HTTP_OK);
     }

@@ -91,6 +91,25 @@ class StravaClient
         }
     }
 
+    public function updateActivityTitle($activityId)
+    {
+        try {
+            $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+            $service = new REST(env('STRAVA_ACCESS_TOKEN'), $adapter);  // Define your user token here.
+            $client = new Client($service);
+
+            $quoteClient = new QuoteClient();
+            $quote = $quoteClient->getQuote();
+
+            $activity = $client->updateActivity($activityId, $quote);
+            print "<pre>";
+            print_r($activity);
+            print "</pre>";
+        } catch (Exception $e) {
+            print $e->getMessage();
+        }
+    }
+
     public function subscribeWebhook() {
         $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
 
