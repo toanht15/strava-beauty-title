@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subscriber;
+use App\Util;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\StravaClient;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use League\OAuth2\Client\Provider\AbstractProvider;
+use Strava\API\Exception;
+use Strava\API\OAuth;
 
 class ActivityController extends Controller
 {
@@ -16,20 +22,41 @@ class ActivityController extends Controller
      */
     public function index()
     {
-        $stravaClient = new StravaClient();
-        $stravaClient->auth();
-//        $stravaClient->auth();
+        try {
+            $util = new Util();
+            $util->makeAuthLink();
+        } catch (Exception $e) {
+            print $e->getMessage();
+            Log::error($e->getMessage());
+        }
     }
 
     public function callback(Request $request)
     {
-        $stravaClient = new StravaClient();
-        $code = $request->input('code');
-        $state = $request->input('state');
+        try {
+            $util = new Util();
+            $code = $request->input('code');
+            $state = $request->input('state');
 
-        $stravaClient->getToken($code);
-        Log::channel("slack")->info("Strava auth code: " . $code);
-        return $code;
+            $tokens = $util->getToken($code);
+            Log::channel("slack")->info("Strava auth code: " . $code);
+
+            $subscriber = Subscriber::find($tokens['athlete']['id']);
+            if (!$subscriber) {
+                $subscriber = new Subscriber();
+            }
+
+            $subscriber->id = $tokens['athlete']['id'];
+            $subscriber->access_token = $tokens['access_token'];
+            $subscriber->refresh_token = $tokens['refresh_token'];
+            $subscriber->expires_at = $tokens['expires_at'];
+            $subscriber->save();
+
+            return "OK";
+        } catch (Exception $e) {
+            print $e->getMessage();
+            Log::error($e->getMessage());
+        }
     }
 
 
@@ -40,9 +67,9 @@ class ActivityController extends Controller
      */
     public function showInfo()
     {
-        Log::channel('slack')->info("Start show info");
-        $stravaClient = new StravaClient();
-        $stravaClient->showInfo();
+//        Log::channel('slack')->info("Start show info");
+        $stravaClient = new StravaClient(39375936, 5891825013);
+//        $stravaClient->showInfo();
     }
 
     public function subscribe()
@@ -97,8 +124,8 @@ class ActivityController extends Controller
         $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
         if ($aspect_type == "create" && $object_type == "activity") {
-            $stravaClient = new StravaClient();
-            $stravaClient->updateActivityTitle($object_id);
+            $stravaClient = new StravaClient($owner_id, $object_id);
+            $stravaClient->updateActivityTitle();
         }
 
         Log::channel('slack')->info(json_encode($request->all()));

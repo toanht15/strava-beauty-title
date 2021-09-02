@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Models\Subscriber;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use League\OAuth2\Client\Provider\AbstractProvider;
@@ -14,6 +15,54 @@ use Strava\API\Service\REST;
 
 class StravaClient
 {
+    protected $athlete_id;
+    protected $activity_id;
+
+    public function __construct($athlete_id, $activity_id) {
+        $this->athlete_id = $athlete_id;
+        $this->activity_id = $activity_id;
+        $tokens = Subscriber::find($athlete_id);
+        $tokens = $this->update_tokens($tokens);
+//        print "<pre>";
+//        print_r($tokens->access_token);
+//        print "</pre>";
+    }
+
+    public function update_tokens($tokens) {
+        try {
+            if ($tokens->expires_at < time()) {
+                $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+                $params = [
+                    'client_id' => env('STRAVA_CLIENT_ID'),
+                    'client_secret' => env('STRAVA_CLIENT_SECRET'),
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $tokens->refresh_token,
+                ];
+
+                $response = $adapter->request('POST', 'oauth/token', [
+                    'form_params' => $params
+                ]);
+
+                $response_decoded = json_decode($response->getBody(), JSON_PRETTY_PRINT);
+                $subscriber = Subscriber::find($tokens->id);
+                $subscriber->access_token = $response_decoded['access_token'];
+                $subscriber->refresh_token = $response_decoded['refresh_token'];
+                $subscriber->expires_at = $response_decoded['expires_at'];
+                $subscriber->save();
+
+            print "<pre>";
+            print_r(json_decode($response->getBody(), JSON_PRETTY_PRINT));
+            print "</pre>";
+                return $subscriber;
+            }
+
+            return $tokens;
+        } catch (Exception $e) {
+            print $e->getMessage();
+            Log::error($e->getMessage());
+        }
+
+    }
     public function auth()
     {
         try {
@@ -36,6 +85,7 @@ class StravaClient
                 ]) . '">Connect</a>';
         } catch (Exception $e) {
             print $e->getMessage();
+            Log::error($e->getMessage());
         }
     }
 
@@ -48,15 +98,14 @@ class StravaClient
                 'redirectUri' => env('STRAVA_AUTH_REDIRECT_URL')
             ];
             $oauth = new OAuth($options);
-            $token = $oauth->getAccessToken('authorization_code', [
+            $response = $oauth->getAccessToken('authorization_code', [
                 'code' => $_GET['code']
             ]);
 
-            print "<pre>";
-            print_r($token);
-            print "</pre>";
-
-            print $token->getToken();
+//            print "<pre>";
+//            print_r($response->jsonSerialize());
+//            print "</pre>";
+            return $response->jsonSerialize();
         } catch (Exception $e) {
             print $e->getMessage();
         }
@@ -73,14 +122,14 @@ class StravaClient
             $quote = $quoteClient->getQuote();
             Log::channel('slack')->info($quote);
 
-            $activity = $client->updateActivity('5887042812', $quote);
+            $activity = $client->updateActivity('5891825013', $quote);
             Log::channel('slack')->info($activity);
         } catch (Exception $e) {
             Log::channel('slack')->error($e->getMessage());
         }
     }
 
-    public function updateActivityTitle($activityId)
+    public function updateActivityTitle()
     {
         try {
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
@@ -90,11 +139,12 @@ class StravaClient
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
 
-            $activity = $client->updateActivity($activityId, $quote);
+            $activity = $client->updateActivity($this->activity_id, $quote);
             Log::channel('slack')->info($quote);
             Log::channel('slack')->info($activity);
         } catch (Exception $e) {
             Log::channel('slack')->error($e->getMessage());
+            Log::error($e->getMessage());
         }
     }
 
