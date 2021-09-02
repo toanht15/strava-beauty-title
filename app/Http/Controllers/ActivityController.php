@@ -67,8 +67,30 @@ class ActivityController extends Controller
      */
     public function showInfo()
     {
-        $stravaClient = new StravaClient(91678383, 5893190019);
-        $stravaClient->updateActivityTitle();
+        try {
+            $stravaClient = new StravaClient(39375936, 5887042812);
+            $activity = $stravaClient->updateActivity();
+
+            print "<pre>";
+            print_r($activity);
+//            print_r($activity['description']);
+            print "</pre>";
+            return $activity;
+        } catch (Exception $e) {
+            print $e->getMessage();
+            Log::error($e->getMessage());
+        }
+
+
+
+//        $lat = $activity['start_latitude'];
+//        $lon = $activity['start_longitude'];
+//
+//        $util = new Util();
+//        $info = $util->getWeatherInfo($lat, $lon);
+//        print "<pre>";
+//        print_r($info . "\n\n" .$activity['description']);
+//        print "</pre>";
     }
 
     public function subscribe()
@@ -125,7 +147,7 @@ class ActivityController extends Controller
 
             if ($aspect_type == "create" && $object_type == "activity") {
                 $stravaClient = new StravaClient($owner_id, $object_id);
-                $stravaClient->updateActivityTitle();
+                $stravaClient->updateActivity();
             }
 
             Log::info(json_encode($request->all()));

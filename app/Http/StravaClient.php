@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Models\Subscriber;
+use App\Util;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use League\OAuth2\Client\Provider\AbstractProvider;
@@ -120,7 +121,7 @@ class StravaClient
     {
         try {
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
-            $service = new REST(env('STRAVA_ACCESS_TOKEN'), $adapter);  // Define your user token here.
+            $service = new REST($this->access_token, $adapter);  // Define your user token here.
             $client = new Client($service);
 
             $quoteClient = new QuoteClient();
@@ -134,7 +135,34 @@ class StravaClient
         }
     }
 
-    public function updateActivityTitle()
+    public function getActivity()
+    {
+        $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+        $service = new REST($this->access_token, $adapter);  // Define your user token here.
+        $client = new Client($service);
+
+        $activity = $client->getActivity($this->activity_id);
+
+        return $activity;
+    }
+
+    public function createDescription()
+    {
+        $activity = $this->getActivity();
+
+        $util = new Util();
+        $lat = $activity['start_latitude'];
+        $lon = $activity['start_longitude'];
+
+        if (strpos($activity['description'], "°C") == false) {
+            $description = $util->getWeatherInfo($lat, $lon);
+            return $description . "\n\n" .$activity['description'];
+        }
+
+        return $activity['description'];
+    }
+
+    public function updateActivity()
     {
         try {
             Log::channel('slack')->info("Start update activity");
@@ -144,10 +172,13 @@ class StravaClient
 
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
+            $description = $this->createDescription();
 
-            $activity = $client->updateActivity($this->activity_id, $quote);
+            $activity = $client->updateActivity($this->activity_id, $quote, null, null, null, null, null, $description);
+
             Log::info($quote);
             Log::info($activity);
+            return $activity;
         } catch (Exception $e) {
             Log::channel('slack')->error($e->getMessage());
             Log::error($e->getMessage());
