@@ -114,23 +114,26 @@ class ActivityController extends Controller
     }
 
     public function updateActivity(Request $request) {
-        Log::channel('slack')->info("Start update activity");
-        $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
-        $event_time = $request['event_time']; // time the event occurred
-        $object_id = $request['object_id']; // activity ID | athlete ID
-        $object_type = $request['object_type']; // "activity" | "athlete"
-        $owner_id = $request['owner_id']; // athlete ID
-        $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
-        $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
+        try {
+            Log::info("Start update activity");
+            $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
+            $event_time = $request['event_time']; // time the event occurred
+            $object_id = $request['object_id']; // activity ID | athlete ID
+            $object_type = $request['object_type']; // "activity" | "athlete"
+            $owner_id = $request['owner_id']; // athlete ID
+            $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
+            $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-        if ($aspect_type == "create" && $object_type == "activity") {
-            $stravaClient = new StravaClient($owner_id, $object_id);
-            $stravaClient->updateActivityTitle();
+            if ($aspect_type == "create" && $object_type == "activity") {
+                $stravaClient = new StravaClient($owner_id, $object_id);
+                $stravaClient->updateActivityTitle();
+            }
+
+            Log::info(json_encode($request->all()));
+            return response('EVENT_RECEIVED', Response::HTTP_OK);
+        } catch (Exception $e) {
+            print $e->getMessage();
+            Log::error($e->getMessage());
         }
-
-        Log::channel('slack')->info(json_encode($request->all()));
-
-        return response('EVENT_RECEIVED', Response::HTTP_OK);
     }
-
 }

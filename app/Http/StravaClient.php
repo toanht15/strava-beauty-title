@@ -63,6 +63,7 @@ class StravaClient
         }
 
     }
+
     public function auth()
     {
         try {
