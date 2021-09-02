@@ -40,6 +40,7 @@ class ActivityController extends Controller
      */
     public function showInfo()
     {
+        Log::channel('slack')->info("Start show info");
         $stravaClient = new StravaClient();
         $stravaClient->showInfo();
     }
@@ -86,6 +87,7 @@ class ActivityController extends Controller
     }
 
     public function updateActivity(Request $request) {
+        Log::channel('slack')->info("Start update activity");
         $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
         $event_time = $request['event_time']; // time the event occurred
         $object_id = $request['object_id']; // activity ID | athlete ID

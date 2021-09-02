@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use Strava\API\OAuth;
 use Strava\API\Exception;
@@ -70,24 +71,12 @@ class StravaClient
 
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
-
-//            $athlete = $client->getAthlete();
-//            print "<pre>";
-//            print_r($athlete);
-//            print "</pre>";
-//
-//
-//            $activities = $client->getAthleteActivities();
-//            print "<pre>";
-//            print_r($activities);
-//            print "</pre>";
+            Log::channel('slack')->info($quote);
 
             $activity = $client->updateActivity('5887042812', $quote);
-            print "<pre>";
-            print_r($activity);
-            print "</pre>";
+            Log::channel('slack')->info($activity);
         } catch (Exception $e) {
-            print $e->getMessage();
+            Log::channel('slack')->error($e->getMessage());
         }
     }
 
@@ -102,11 +91,10 @@ class StravaClient
             $quote = $quoteClient->getQuote();
 
             $activity = $client->updateActivity($activityId, $quote);
-            print "<pre>";
-            print_r($activity);
-            print "</pre>";
+            Log::channel('slack')->info($quote);
+            Log::channel('slack')->info($activity);
         } catch (Exception $e) {
-            print $e->getMessage();
+            Log::channel('slack')->error($e->getMessage());
         }
     }
 
