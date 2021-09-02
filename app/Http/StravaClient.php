@@ -105,7 +105,7 @@ class StravaClient
             ]
         ]);
 
-        if ($response->status() === Response::HTTP_CREATED) {
+        if ($response->getStatusCode() === Response::HTTP_CREATED) {
             return json_decode($response->body())->id;
         } else {
             return $response;
