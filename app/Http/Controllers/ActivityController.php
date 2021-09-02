@@ -96,10 +96,10 @@ class ActivityController extends Controller
         $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
         $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-//        if ($aspect_type == "create" && $object_type == "activity") {
-//            $stravaClient = new StravaClient();
-//            $stravaClient->updateActivityTitle($object_id);
-//        }
+        if ($aspect_type == "create" && $object_type == "activity") {
+            $stravaClient = new StravaClient();
+            $stravaClient->updateActivityTitle($object_id);
+        }
 
         Log::channel('slack')->info(json_encode($request->all()));
 
