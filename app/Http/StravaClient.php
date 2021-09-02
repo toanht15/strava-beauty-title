@@ -42,9 +42,9 @@ class StravaClient
     {
         try {
             $options = [
-                'clientId' => 69573,
-                'clientSecret' => '3bd7e053018564c39cc8da5f846a0d91954eded8',
-                'redirectUri' => 'http://127.0.0.1:8000/callback'
+                'clientId' => env('STRAVA_CLIENT_ID'),
+                'clientSecret' => env('STRAVA_CLIENT_SECRET'),
+                'redirectUri' => env('STRAVA_AUTH_REDIRECT_URL')
             ];
             $oauth = new OAuth($options);
             $token = $oauth->getAccessToken('authorization_code', [
@@ -121,5 +121,25 @@ class StravaClient
         print "</pre>";
 
         return $body;
+    }
+
+    public function refreshToken() {
+        $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+
+        $response = $adapter->request('POST', 'oauth/token', [
+            'form_params' => [
+                'client_id' => env('STRAVA_CLIENT_ID'),
+                'client_secret' => env('STRAVA_CLIENT_SECRET'),
+                'grant_type' => 'refresh_token',
+                'refresh_token' => env('STRAVA_REFRESH_TOKEN'),
+            ]
+        ]);
+
+        print "<pre>";
+        print_r(json_decode($response->body()));
+        print "</pre>";
+
+        return json_decode($response->body());
+
     }
 }

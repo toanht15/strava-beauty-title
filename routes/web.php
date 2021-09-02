@@ -32,6 +32,7 @@ Route::get('/webhook', [ActivityController::class, 'validateCallback']);
 Route::get('/subscribe', [ActivityController::class, 'subscribe']);
 
 Route::get('/check', [ActivityController::class, 'check']);
+Route::get('/refresh', [ActivityController::class, 'refresh']);
 
 //Route::get('/webhook', function (Request $request) {
 //    $mode = $request->query('hub_mode'); // hub.mode

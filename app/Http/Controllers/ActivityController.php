@@ -53,6 +53,12 @@ class ActivityController extends Controller
         $stravaClient->checkSubscribe();
     }
 
+    public function refresh()
+    {
+        $stravaClient = new StravaClient();
+        $stravaClient->refreshToken();
+    }
+
     public function validateCallback(Request $request)
     {
         // Your verify token. Should be a random string.
