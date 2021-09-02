@@ -137,6 +137,7 @@ class StravaClient
     public function updateActivityTitle()
     {
         try {
+            Log::channel('slack')->info("Start update activity");
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
             $service = new REST($this->access_token, $adapter);  // Define your user token here.
             $client = new Client($service);
