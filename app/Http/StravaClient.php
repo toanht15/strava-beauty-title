@@ -17,12 +17,16 @@ class StravaClient
 {
     protected $athlete_id;
     protected $activity_id;
+    protected $access_token;
+    protected $refresh_token;
 
     public function __construct($athlete_id, $activity_id) {
         $this->athlete_id = $athlete_id;
         $this->activity_id = $activity_id;
         $tokens = Subscriber::find($athlete_id);
         $tokens = $this->update_tokens($tokens);
+        $this->access_token = $tokens->access_token;
+        $this->refresh_token = $tokens->refresh_token;
 //        print "<pre>";
 //        print_r($tokens->access_token);
 //        print "</pre>";
@@ -134,15 +138,15 @@ class StravaClient
     {
         try {
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
-            $service = new REST(env('STRAVA_ACCESS_TOKEN'), $adapter);  // Define your user token here.
+            $service = new REST($this->access_token, $adapter);  // Define your user token here.
             $client = new Client($service);
 
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
 
             $activity = $client->updateActivity($this->activity_id, $quote);
-            Log::channel('slack')->info($quote);
-            Log::channel('slack')->info($activity);
+            Log::info($quote);
+            Log::info($activity);
         } catch (Exception $e) {
             Log::channel('slack')->error($e->getMessage());
             Log::error($e->getMessage());
@@ -187,7 +191,7 @@ class StravaClient
                 'client_id' => env('STRAVA_CLIENT_ID'),
                 'client_secret' => env('STRAVA_CLIENT_SECRET'),
                 'grant_type' => 'refresh_token',
-                'refresh_token' => env('STRAVA_REFRESH_TOKEN'),
+                'refresh_token' => $this->refresh_token,
             ]
         ]);
 

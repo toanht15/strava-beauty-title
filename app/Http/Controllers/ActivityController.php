@@ -67,9 +67,8 @@ class ActivityController extends Controller
      */
     public function showInfo()
     {
-//        Log::channel('slack')->info("Start show info");
-        $stravaClient = new StravaClient(39375936, 5891825013);
-//        $stravaClient->showInfo();
+        $stravaClient = new StravaClient(91678383, 5893190019);
+        $stravaClient->updateActivityTitle();
     }
 
     public function subscribe()
