@@ -20,6 +20,7 @@ class StravaClient
     protected $activity_id;
     protected $access_token;
     protected $refresh_token;
+    protected $activity;
 
     public function __construct($athlete_id, $activity_id) {
         $this->athlete_id = $athlete_id;
@@ -28,6 +29,7 @@ class StravaClient
         $tokens = $this->update_tokens($tokens);
         $this->access_token = $tokens->access_token;
         $this->refresh_token = $tokens->refresh_token;
+        $this->activity = $this->getActivity();
 //        print "<pre>";
 //        print_r($tokens->access_token);
 //        print "</pre>";
@@ -148,18 +150,91 @@ class StravaClient
 
     public function createDescription()
     {
-        $activity = $this->getActivity();
+        $type = $this->activity['type'];
 
-        $util = new Util();
-        $lat = $activity['start_latitude'];
-        $lon = $activity['start_longitude'];
-
-        if (strpos($activity['description'], "°C") == false) {
-            $description = $util->getWeatherInfo($lat, $lon);
-            return $description . "\n\n" .$activity['description'];
+        $description = "";
+        if (strpos($this->activity['description'], "°C") == false && $type == "Run") {
+            // create weather text
+            $util = new Util();
+            $lat = $this->activity['start_latitude'];
+            $lon = $this->activity['start_longitude'];
+            $description = "Today's weather: " . $util->getWeatherInfo($lat, $lon);
         }
 
-        return $activity['description'];
+        if (strpos($this->activity['description'], "Today's quote") == false) {
+            // create quote
+            $quoteClient = new QuoteClient();
+            $quote = $quoteClient->getQuote();
+            $description .= "\n" . "Today's quote: " . $quote . "\n\n";
+        }
+
+        return $description . $this->activity['description'];
+    }
+
+    public function createTitle()
+    {
+        $numbers = [
+          0 => "0️⃣",
+          1 => "1️⃣",
+          2 => "2️⃣",
+          3 => "3️⃣",
+          4 => "4️⃣",
+          5 => "5️⃣",
+          6 => "6️⃣",
+          7 => "7️⃣",
+          8 => "8️⃣",
+          9 => "9️⃣",
+          10=> "🔟"
+        ];
+        $type = $this->activity['type'];
+        $time = $this->activity['elapsed_time'];
+        if ($time < 36000) {
+            $hour = 0;
+            $min = intdiv($time, 60);
+            $time_text = $min . "min";
+        } else {
+            $hour = intdiv($time, 3600);
+            $min = intdiv($time % 3600, 60);
+            $time_text = $hour . "h". $min . "min";
+        }
+        $cal = (int)$this->activity['calories'];
+
+        switch ($type) {
+            case "Run":
+                $distance = $this->activity['distance'];
+                if ($distance < 1000) {
+                    $distance_text = $numbers[1] ."km";
+                } else {
+                    $long_distance = intdiv($distance, 1000);
+                    if ($long_distance <= 10) {
+                        $distance_text = $numbers[$long_distance] . "km";
+                    } else {
+                        $distance_text =  $numbers[intdiv($long_distance, 10)] . $numbers[$long_distance % 10] . "km";
+                    }
+                }
+
+                return date("l") . " 🏃 Running " . $distance_text . " 🕒" . $time_text . " 🔥" . $cal . "cal";
+            case "Walk":
+                $distance = $this->activity['distance'];
+                if ($distance < 1000) {
+                    $distance_text = $numbers[1] ."km";
+                } else {
+                    $long_distance = intdiv($distance, 1000);
+                    if ($long_distance <= 10) {
+                        $distance_text = $numbers[$long_distance] . "km";
+                    } else {
+                        $distance_text =  $numbers[intdiv($long_distance, 10)] . $numbers[$long_distance % 10] . "km";
+                    }
+                }
+
+                return date("l") ." 🚶 Walking - " . $distance_text . " 🕒" . $time_text . " 🔥" . $cal . "cal";
+            case "Workout":
+                return date("l") . " 🏋🏻 Cardio‍️" . " 🕒" . $time_text . " 🔥" . $cal . "cal";
+            case "WeightTraining":
+                return date("l") . "🏋🏻 Gym" . " 🕒" . $time_text . " 🔥" . $cal . "cal";
+            default:
+                return "Activity";
+        }
     }
 
     public function updateActivity()
@@ -170,13 +245,11 @@ class StravaClient
             $service = new REST($this->access_token, $adapter);  // Define your user token here.
             $client = new Client($service);
 
-            $quoteClient = new QuoteClient();
-            $quote = $quoteClient->getQuote();
+
             $description = $this->createDescription();
 
-            $activity = $client->updateActivity($this->activity_id, $quote, null, null, null, null, null, $description);
+            $activity = $client->updateActivity($this->activity_id, $this->createTitle(), null, null, null, null, null, $description);
 
-            Log::info($quote);
             Log::info($activity);
             return $activity;
         } catch (Exception $e) {

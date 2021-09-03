@@ -5,6 +5,7 @@ namespace App;
 
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use Strava\API\Exception;
 use Strava\API\OAuth;
@@ -27,6 +28,7 @@ class Util
             return $response->jsonSerialize();
         } catch (Exception $e) {
             print $e->getMessage();
+            Log::error($e->getMessage());
         }
     }
 
@@ -66,6 +68,7 @@ class Util
                     'lang' => 'en'
                 ]
         ];
+        Log::info($query);
         $response = $client->request('GET', 'onecall/timemachine', $query);
         $icons = ['01d' => '🌄', '01n' => '🌙', '02d' => '🌤', '02n' => '☁', '03d' => '☁', '03n' => '☁',
              '04d' => '🌥', '04n' => '🌥', '50d' => '🌫', '50n' => '🌫', '13d' => '🌨', '13n' => '🌨',

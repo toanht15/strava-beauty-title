@@ -34,6 +34,9 @@ Route::get('/subscribe', [ActivityController::class, 'subscribe']);
 Route::get('/check', [ActivityController::class, 'check']);
 Route::get('/refresh', [ActivityController::class, 'refresh']);
 
+Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+
+
 //Route::get('/webhook', function (Request $request) {
 //    $mode = $request->query('hub_mode'); // hub.mode
 //    $token = $request->query('hub_verify_token'); // hub.verify_token

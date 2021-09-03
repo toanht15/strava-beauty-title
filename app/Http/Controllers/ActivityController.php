@@ -68,7 +68,7 @@ class ActivityController extends Controller
     public function showInfo()
     {
         try {
-            $stravaClient = new StravaClient(39375936, 5887042812);
+            $stravaClient = new StravaClient(91678383, 5899075283);
             $activity = $stravaClient->updateActivity();
 
             print "<pre>";
@@ -80,17 +80,6 @@ class ActivityController extends Controller
             print $e->getMessage();
             Log::error($e->getMessage());
         }
-
-
-
-//        $lat = $activity['start_latitude'];
-//        $lon = $activity['start_longitude'];
-//
-//        $util = new Util();
-//        $info = $util->getWeatherInfo($lat, $lon);
-//        print "<pre>";
-//        print_r($info . "\n\n" .$activity['description']);
-//        print "</pre>";
     }
 
     public function subscribe()
