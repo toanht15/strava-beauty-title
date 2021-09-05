@@ -68,7 +68,8 @@ class ActivityController extends Controller
     public function showInfo()
     {
         try {
-            $stravaClient = new StravaClient(91678383, 5899075283);
+//            $stravaClient = new StravaClient(91678383, 5899075283);
+            $stravaClient = new StravaClient(39375936, 5908014844);
             $activity = $stravaClient->updateActivity();
 
             print "<pre>";

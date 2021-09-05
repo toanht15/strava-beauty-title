@@ -165,7 +165,7 @@ class StravaClient
             // create quote
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
-            $description .= "\n" . "Today's quote: " . $quote . "\n\n";
+            $description .= "\n" . "Today's quote: " . $quote . "\n";
         }
 
         return $description . $this->activity['description'];
@@ -188,7 +188,7 @@ class StravaClient
         ];
         $type = $this->activity['type'];
         $time = $this->activity['elapsed_time'];
-        if ($time < 36000) {
+        if ($time < 3600) {
             $hour = 0;
             $min = intdiv($time, 60);
             $time_text = $min . "min";
