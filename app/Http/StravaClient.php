@@ -153,7 +153,7 @@ class StravaClient
         $type = $this->activity['type'];
 
         $description = "";
-        if (strpos($this->activity['description'], "°C") == false && $type == "Run") {
+        if (strpos($this->activity['description'], "°C") == false && ($type == "Run" || $type =="Walk")) {
             // create weather text
             $util = new Util();
             $lat = $this->activity['start_latitude'];
