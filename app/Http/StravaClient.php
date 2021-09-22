@@ -2,9 +2,12 @@
 
 namespace App\Http;
 
+use App\Models\Activity;
 use App\Models\Subscriber;
 use App\Util;
+use DateTime;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use Strava\API\OAuth;
@@ -153,7 +156,7 @@ class StravaClient
         $type = $this->activity['type'];
 
         $description = "";
-        if (strpos($this->activity['description'], "°C") == false && ($type == "Run" || $type =="Walk")) {
+        if (strpos($this->activity['description'], "°C") === false && ($type === "Run" || $type === "Walk")) {
             // create weather text
             $util = new Util();
             $lat = $this->activity['start_latitude'];
@@ -166,6 +169,11 @@ class StravaClient
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
             $description .= "\n" . "Today's quote: " . $quote . "\n";
+        }
+
+        if ($type === "Run") {
+            // create weather text
+            $description .= "\n" . $this->createStats();
         }
 
         return $description . $this->activity['description'];
@@ -278,14 +286,24 @@ class StravaClient
     }
 
     public function checkSubscribe() {
-        $client = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
-        $response = $client->request('GET', 'push_subscriptions?client_id=69573&client_secret=3bd7e053018564c39cc8da5f846a0d91954eded8');
-        $body= json_decode($response->getBody(), JSON_PRETTY_PRINT);
+//        $client = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+//        $response = $client->request('GET', 'push_subscriptions?client_id=69573&client_secret=3bd7e053018564c39cc8da5f846a0d91954eded8');
+//        $response = $client->request('GET', 'athlete/activities?before=2021-09-30&after=2021-09-01');
+//        $body= json_decode($response->getBody(), JSON_PRETTY_PRINT);
+//        print "<pre>";
+//        print_r($body);
+//        print "</pre>";
+
+        $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+        $service = new REST($this->access_token, $adapter);  // Define your user token here.
+        $client = new Client($service);
+
+        $activity = $client->getAthleteActivities(strtotime('2021-09-30T12:15:09Z'), strtotime('2021-09-01T12:15:09Z'), 2, 5);
         print "<pre>";
-        print_r($body);
+        print_r($activity);
         print "</pre>";
 
-        return $body;
+        return $activity;
     }
 
     public function refreshToken() {
@@ -300,11 +318,101 @@ class StravaClient
             ]
         ]);
 
-        print "<pre>";
-        print_r(json_decode($response->body()));
-        print "</pre>";
-
         return json_decode($response->body());
+    }
 
+    public function createStats() {
+        return $this->createThisWeekStats() . "\n\n" . $this->createThisMonthStats();
+    }
+
+    public function createThisWeekStats(): string
+    {
+        $this_week_stats = "📝--This week summary--📝";
+        $start = (date('D') != 'Mon') ? date('Y-m-d', strtotime('last Monday')) : date('Y-m-d');
+        $finish = (date('D') != 'Sun') ? date('Y-m-d', strtotime('next Sunday')) : date('Y-m-d');
+
+        $stats = Activity::selectRaw('SUM(distance) as total_distance, MAX(distance) as longest_distance, AVG(distance) as average_distance, COUNT(id) as count, AVG(average_speed) as average_speed, SUM(total_elevation_gain) as total_climb, SUM(elapsed_time) as total_time')
+            ->where('athlete_id', $this->athlete_id)
+            ->where('type', 'Run')
+            ->whereBetween('start_date', [$start, $finish])
+            ->get();
+
+        $stats = (new Util())->createActivityStats($stats[0]);
+        $this_week_stats .= "\nCompleted: " . $stats['number_of_activity'] . "runs";
+        $this_week_stats .= "\nTotal Distance:" . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $this_week_stats .= "\nAvg. Pace: " . $stats['average_pace'] . "min/km";
+        $this_week_stats .= "\nTotal Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
+        $this_week_stats .= "\nTotal Time: " . $stats['total_time']. "min";
+
+        return $this_week_stats;
+    }
+
+    public function createThisMonthStats() {
+        $this_month_stats = "\n📝--This month summary--📝";
+        $first_day_this_month = date('Y-m-01'); // hard-coded '01' for first day
+        $last_day_this_month  = date('Y-m-t');
+
+        $stats = Activity::selectRaw('SUM(distance) as total_distance, MAX(distance) as longest_distance, AVG(distance) as average_distance, COUNT(id) as count, AVG(average_speed) as average_speed, SUM(total_elevation_gain) as total_climb, SUM(elapsed_time) as total_time')
+            ->where('athlete_id', 39375936)
+            ->where('type', 'Run')
+            ->whereBetween('start_date', [$first_day_this_month, $last_day_this_month])
+            ->get();
+
+        $stats = (new Util())->createActivityStats($stats[0]);
+        $this_month_stats .= "\nCompleted: " . $stats['number_of_activity'] . "runs";
+        $this_month_stats .= "\nTotal Distance:" . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $this_month_stats .= "\nLongest Run:" . $stats['longest_distance'] . "km";
+        $this_month_stats .= "\nAvg. Pace: " . $stats['average_pace'] . "min/km";
+        $this_month_stats .= "\nTotal Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
+        $this_month_stats .= "\nTotal Time: " . $stats['total_time']. "min";
+
+        return $this_month_stats;
+    }
+
+    public function saveActivity()
+    {
+        $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
+        $service = new REST($this->access_token, $adapter);  // Define your user token here.
+        $client = new Client($service);
+
+        $item = $client->getActivity($this->activity_id);
+
+        $now = new DateTime();
+        $row = [
+            'athlete_id' => $this->athlete_id,
+            'activity_id' => $item['id'],
+            'name' => $item['name'],
+            'distance' => $item['distance'],
+            'moving_time' => $item['moving_time'],
+            'elapsed_time' => $item['elapsed_time'],
+            'total_elevation_gain' => $item['total_elevation_gain'],
+            'type' => $item['type'],
+            'workout_type' => isset($item['workout_type']) ? $item['workout_type'] : null,
+            'start_date' => $item['start_date'],
+            'start_date_local' => $item['start_date_local'],
+            'timezone' => $item['timezone'],
+            'location_city' => $item['location_city'],
+            'location_state' => $item['location_state'],
+            'location_country' => $item['location_country'],
+            'achievement_count' => $item['achievement_count'],
+            'kudos_count' => $item['kudos_count'],
+            'comment_count' => $item['comment_count'],
+            'athlete_count' => $item['athlete_count'],
+            'manual' => $item['manual'],
+            'private' => $item['private'],
+            'average_speed' => $item['average_speed'],
+            'max_speed' => $item['max_speed'],
+            'average_cadence' => isset($item['average_cadence']) ? $item['average_cadence'] : null,
+            'has_heartrate' => $item['has_heartrate'],
+            'average_heartrate' => isset($item['average_heartrate']) ? $item['average_heartrate'] : null,
+            'max_heartrate' => isset($item['max_heartrate']) ? $item['max_heartrate'] : null,
+            'pr_count' => $item['pr_count'],
+            'created_at' => $now->format('Y-m-d H:i:s'),
+            'updated_at' => $now->format('Y-m-d H:i:s'),
+        ];
+
+        DB::table('activities')->insert($row);
+
+        return 0;
     }
 }

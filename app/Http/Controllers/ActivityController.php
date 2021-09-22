@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Subscriber;
 use App\Util;
 use Illuminate\Database\Eloquent\Model;
@@ -68,15 +69,13 @@ class ActivityController extends Controller
     public function showInfo()
     {
         try {
-//            $stravaClient = new StravaClient(91678383, 5899075283);
-            $stravaClient = new StravaClient(39375936, 5908014844);
-            $activity = $stravaClient->updateActivity();
+            $stravaClient = new StravaClient(91678383, 5899075283);
+//            $stravaClient = new StravaClient(39375936, 5908014844);
+            $stravaClient->saveActivity();
+//            $activity = $stravaClient->checkSubscribe();
 
-            print "<pre>";
-            print_r($activity);
-//            print_r($activity['description']);
-            print "</pre>";
-            return $activity;
+            $stats = $stravaClient->createStats();
+            dd($stats);
         } catch (Exception $e) {
             print $e->getMessage();
             Log::error($e->getMessage());
@@ -137,6 +136,7 @@ class ActivityController extends Controller
 
             if ($aspect_type == "create" && $object_type == "activity") {
                 $stravaClient = new StravaClient($owner_id, $object_id);
+                $stravaClient->saveActivity();
                 $stravaClient->updateActivity();
             }
 

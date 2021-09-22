@@ -77,7 +77,31 @@ class Util
 
         $icon_code = $info['current']['weather'][0]['icon'];
         $description = ucfirst($info['current']['weather'][0]['description']);
-        $weather_description = "🌡 " . $info['current']['temp'] . "°C, Feels like " . $info['current']['feels_like'] . "°C, " . "💦 " . $info['current']['humidity'] . "%, 💨 " . $info['current']['wind_speed'] . "m/s" ;
+        $weather_description = "🌡 " . $info['current']['temp'] . "°C, Feels like " . $info['current']['feels_like'] . "°C, " . "💦 Humidity " . $info['current']['humidity'] . "%, 💨 Wind " . $info['current']['wind_speed'] . "m/s" ;
         return $icons[$icon_code] . $description . "-" . $weather_description;
+    }
+
+    public function createActivityStats($input): array
+    {
+        $total_distance = round($input['total_distance'] / 1000, 1);
+        $longest_distance = round($input['longest_distance'] / 1000, 1);
+        $average_distance = round($input['average_distance'] / 1000, 1);
+        $total_time = (int)($input['total_time'] / 60);
+        $average_pace_sendconds = (int)(1000 / $input['average_speed']);
+        $average_pace = (int)($average_pace_sendconds / 60) . "." . $average_pace_sendconds % 60;
+        $average_climb = (int)($input['total_climb'] / $input['count']);
+
+        $data = [
+            'number_of_activity' => $input['count'],
+            'total_distance' => $total_distance,
+            'longest_distance' => $longest_distance,
+            'average_distance' => $average_distance,
+            'total_climb' => $input['total_climb'],
+            'total_time' => $total_time,
+            'average_pace' => $average_pace,
+            'average_climb' => $average_climb
+        ];
+
+        return $data;
     }
 }
