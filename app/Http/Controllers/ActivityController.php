@@ -69,13 +69,15 @@ class ActivityController extends Controller
     public function showInfo()
     {
         try {
-            $stravaClient = new StravaClient(91678383, 5899075283);
+            $stravaClient = new StravaClient(91678383, 6001492217);
 //            $stravaClient = new StravaClient(39375936, 5908014844);
             $stravaClient->saveActivity();
+            $activity = $stravaClient->updateActivity();
+            dd($activity);
 //            $activity = $stravaClient->checkSubscribe();
 
-            $stats = $stravaClient->createStats();
-            dd($stats);
+//            $stats = $stravaClient->createStats();
+//            dd($stats);
         } catch (Exception $e) {
             print $e->getMessage();
             Log::error($e->getMessage());
