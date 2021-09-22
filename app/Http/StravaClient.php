@@ -385,7 +385,7 @@ class StravaClient
             'distance' => $item['distance'],
             'moving_time' => $item['moving_time'],
             'elapsed_time' => $item['elapsed_time'],
-            'total_elevation_gain' => $item['total_elevation_gain'],
+            'total_elevation_gain' => (int)$item['total_elevation_gain'],
             'type' => $item['type'],
             'workout_type' => isset($item['workout_type']) ? $item['workout_type'] : null,
             'start_date' => $item['start_date'],
