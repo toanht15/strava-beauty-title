@@ -153,6 +153,7 @@ class StravaClient
 
     public function createDescription()
     {
+        Log::info("Begin create description");
         $type = $this->activity['type'];
 
         $description = "";
@@ -175,6 +176,9 @@ class StravaClient
             // create weather text
             $description .= "\n" . $this->createStats();
         }
+
+        Log::info("Description created");
+        Log::info($description);
 
         return $description . $this->activity['description'];
     }
@@ -248,7 +252,7 @@ class StravaClient
     public function updateActivity()
     {
         try {
-            Log::channel('slack')->info("Start update activity");
+            Log::info("Begin update");
             $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
             $service = new REST($this->access_token, $adapter);  // Define your user token here.
             $client = new Client($service);
@@ -258,7 +262,7 @@ class StravaClient
             Log::info($description);
 
             $activity = $client->updateActivity($this->activity_id, $this->createTitle(), null, null, null, null, null, $description);
-
+            Log::info("Activity updated");
 //            Log::info($activity);
             return $activity;
         } catch (Exception $e) {
@@ -372,11 +376,8 @@ class StravaClient
 
     public function saveActivity()
     {
-        $adapter = new \GuzzleHttp\Client(['base_uri' => 'https://www.strava.com/api/v3/']);
-        $service = new REST($this->access_token, $adapter);  // Define your user token here.
-        $client = new Client($service);
-
-        $item = $client->getActivity($this->activity_id);
+        Log::info("Begin save activity");
+        $item = $this->activity;
 
         $now = new DateTime();
         $row = [
@@ -414,6 +415,7 @@ class StravaClient
 
         DB::table('activities')->insert($row);
 
+        Log::info("Activity saved");
         return 0;
     }
 }

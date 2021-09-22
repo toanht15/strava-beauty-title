@@ -136,8 +136,9 @@ class ActivityController extends Controller
             $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
             $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-            Log::info("athlete id: " . $owner_id);
             if ($aspect_type == "create" && $object_type == "activity") {
+                Log::info("athlete id: " . $owner_id);
+                Log::info("activity id: " . $object_id);
                 $stravaClient = new StravaClient($owner_id, $object_id);
                 $stravaClient->saveActivity();
                 $stravaClient->updateActivity();
