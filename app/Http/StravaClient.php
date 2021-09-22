@@ -255,10 +255,11 @@ class StravaClient
 
 
             $description = $this->createDescription();
+            Log::info($description);
 
             $activity = $client->updateActivity($this->activity_id, $this->createTitle(), null, null, null, null, null, $description);
 
-            Log::info($activity);
+//            Log::info($activity);
             return $activity;
         } catch (Exception $e) {
             Log::channel('slack')->error($e->getMessage());
