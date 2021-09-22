@@ -263,6 +263,8 @@ class StravaClient
 
             $activity = $client->updateActivity($this->activity_id, $this->createTitle(), null, null, null, null, null, $description);
             Log::info("Activity updated");
+            Log::info($activity['name']);
+            Log::info($activity['description']);
 //            Log::info($activity);
             return $activity;
         } catch (Exception $e) {
