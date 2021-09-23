@@ -140,7 +140,7 @@ class ActivityController extends Controller
                 Log::info("athlete id: " . $owner_id);
                 Log::info("activity id: " . $object_id);
                 $stravaClient = new StravaClient($owner_id, $object_id);
-                $stravaClient->saveActivity();
+//                $stravaClient->saveActivity();
                 $stravaClient->updateActivity();
             }
 
