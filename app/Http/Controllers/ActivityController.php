@@ -69,7 +69,7 @@ class ActivityController extends Controller
     public function showInfo()
     {
         try {
-            $stravaClient = new StravaClient(91678383, 6001492217);
+            $stravaClient = new StravaClient(91678383, 6004363203);
 //            $stravaClient = new StravaClient(39375936, 5908014844);
             $stravaClient->saveActivity();
             $activity = $stravaClient->updateActivity();
@@ -127,7 +127,7 @@ class ActivityController extends Controller
 
     public function updateActivity(Request $request) {
         try {
-            Log::info("Start update activity");
+            Log::info("Get info from webhook");
             $aspect_type = $request['aspect_type']; // "create" | "update" | "delete"
             $event_time = $request['event_time']; // time the event occurred
             $object_id = $request['object_id']; // activity ID | athlete ID
@@ -136,7 +136,8 @@ class ActivityController extends Controller
             $subscription_id = $request['subscription_id']; // push subscription ID receiving the event
             $updates = $request['updates']; // activity update: {"title" | "type" | "private": true/false} ; app deauthorization: {"authorized": false}
 
-            if ($aspect_type == "create" && $object_type == "activity") {
+            if ($aspect_type === "create" && $object_type === "activity") {
+                Log::info("Start update activity");
                 Log::info("athlete id: " . $owner_id);
                 Log::info("activity id: " . $object_id);
                 $stravaClient = new StravaClient($owner_id, $object_id);
