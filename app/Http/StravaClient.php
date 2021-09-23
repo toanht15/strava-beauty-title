@@ -258,7 +258,8 @@ class StravaClient
             $client = new Client($service);
 
 
-            $description = $this->createDescription();
+//            $description = $this->createDescription();
+            $description = "ABC";
             Log::info($description);
 
             $activity = $client->updateActivity($this->activity_id, $this->createTitle(), null, null, null, null, null, $description);
