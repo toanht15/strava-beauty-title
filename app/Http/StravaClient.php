@@ -334,7 +334,7 @@ class StravaClient
 
     public function createThisWeekStats(): string
     {
-        $this_week_stats = "📝--This week summary--📝";
+        $this_week_stats = "💥💥💥This Week Summary💥💥💥";
         $start = (date('D') != 'Mon') ? date('Y-m-d', strtotime('last Monday')) : date('Y-m-d');
         $finish = (date('D') != 'Sun') ? date('Y-m-d', strtotime('next Sunday')) : date('Y-m-d');
 
@@ -345,8 +345,9 @@ class StravaClient
             ->get();
 
         $stats = (new Util())->createActivityStats($stats[0]);
-        $this_week_stats .= "\nCompleted: " . $stats['number_of_activity'] . "runs";
-        $this_week_stats .= "\nTotal Distance:" . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $run_text = $stats['number_of_activity'] > 1 ? "runs" : "run";
+        $this_week_stats .= "\nCompleted: " . $stats['number_of_activity'] . " $run_text";
+        $this_week_stats .= "\nTotal Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
         $this_week_stats .= "\nAvg. Pace: " . $stats['average_pace'] . "min/km";
         $this_week_stats .= "\nTotal Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
         $this_week_stats .= "\nTotal Time: " . $stats['total_time']. "min";
@@ -355,7 +356,7 @@ class StravaClient
     }
 
     public function createThisMonthStats() {
-        $this_month_stats = "\n📝--This month summary--📝";
+        $this_month_stats = "\n⚡️⚡️⚡️This month summary⚡️⚡️⚡️";
         $first_day_this_month = date('Y-m-01'); // hard-coded '01' for first day
         $last_day_this_month  = date('Y-m-t');
 
@@ -366,8 +367,9 @@ class StravaClient
             ->get();
 
         $stats = (new Util())->createActivityStats($stats[0]);
-        $this_month_stats .= "\nCompleted: " . $stats['number_of_activity'] . "runs";
-        $this_month_stats .= "\nTotal Distance:" . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $run_text = $stats['number_of_activity'] > 1 ? "runs" : "run";
+        $this_month_stats .= "\nCompleted: " . $stats['number_of_activity'] . " $run_text";
+        $this_month_stats .= "\nTotal Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
         $this_month_stats .= "\nLongest Run:" . $stats['longest_distance'] . "km";
         $this_month_stats .= "\nAvg. Pace: " . $stats['average_pace'] . "min/km";
         $this_month_stats .= "\nTotal Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
