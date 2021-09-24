@@ -368,12 +368,12 @@ class StravaClient
 
         $stats = (new Util())->createActivityStats($stats[0]);
         $run_text = $stats['number_of_activity'] > 1 ? "runs" : "run";
-        $this_month_stats .= "\n ✅Completed: " . $stats['number_of_activity'] . " $run_text";
-        $this_month_stats .= "\n ✅Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
-        $this_month_stats .= "\n ✅Longest Run: " . $stats['longest_distance'] . "km";
-        $this_month_stats .= "\n ✅Avg. Pace: " . $stats['average_pace'] . "min/km";
-        $this_month_stats .= "\n ✅Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
-        $this_month_stats .= "\n ✅Total Time: " . $stats['total_time']. "min";
+        $this_month_stats .= "\n✅ Completed: " . $stats['number_of_activity'] . " $run_text";
+        $this_month_stats .= "\n✅ Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $this_month_stats .= "\n✅ Longest Run: " . $stats['longest_distance'] . "km";
+        $this_month_stats .= "\n✅ Avg. Pace: " . $stats['average_pace'] . "min/km";
+        $this_month_stats .= "\n✅ Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
+        $this_month_stats .= "\n✅ Total Time: " . $stats['total_time']. "min";
 
         return $this_month_stats;
     }
