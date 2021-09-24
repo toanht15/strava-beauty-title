@@ -162,14 +162,14 @@ class StravaClient
             $util = new Util();
             $lat = $this->activity['start_latitude'];
             $lon = $this->activity['start_longitude'];
-            $description = "🌤Today's weather: " . $util->getWeatherInfo($lat, $lon);
+            $description = "🌤 Today's weather: " . $util->getWeatherInfo($lat, $lon);
         }
 
         if (strpos($this->activity['description'], "Today's quote") == false) {
             // create quote
             $quoteClient = new QuoteClient();
             $quote = $quoteClient->getQuote();
-            $description .= "\n" . " 📜Today's quote: " . $quote . "\n";
+            $description .= "\n" . " 📜 Today's quote: " . $quote . "\n";
         }
 
         if ($type === "Run") {
@@ -334,7 +334,7 @@ class StravaClient
 
     public function createThisWeekStats(): string
     {
-        $this_week_stats = "💥💥💥This Week Summary💥💥💥";
+        $this_week_stats = "💥💥💥 This Week Summary 💥💥💥";
         $start = (date('D') != 'Mon') ? date('Y-m-d', strtotime('last Monday')) : date('Y-m-d');
         $finish = (date('D') != 'Sun') ? date('Y-m-d', strtotime('next Sunday')) : date('Y-m-d');
 
@@ -346,17 +346,17 @@ class StravaClient
 
         $stats = (new Util())->createActivityStats($stats[0]);
         $run_text = $stats['number_of_activity'] > 1 ? "runs" : "run";
-        $this_week_stats .= "\n✅Completed: " . $stats['number_of_activity'] . " $run_text";
-        $this_week_stats .= "\n✅Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
-        $this_week_stats .= "\n✅Avg. Pace: " . $stats['average_pace'] . "min/km";
-        $this_week_stats .= "\n✅Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
-        $this_week_stats .= "\n✅otal Time: " . $stats['total_time']. "min";
+        $this_week_stats .= "\n✅ Completed: " . $stats['number_of_activity'] . " $run_text";
+        $this_week_stats .= "\n✅ Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $this_week_stats .= "\n✅ Avg. Pace: " . $stats['average_pace'] . "min/km";
+        $this_week_stats .= "\n✅ Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
+        $this_week_stats .= "\n✅ Total Time: " . $stats['total_time']. "min";
 
         return $this_week_stats;
     }
 
     public function createThisMonthStats() {
-        $this_month_stats = "\n⚡️⚡️⚡️This Month Summary⚡️⚡️⚡️";
+        $this_month_stats = "\n⚡️⚡️⚡ ️This Month Summary ⚡️⚡️⚡️";
         $first_day_this_month = date('Y-m-01'); // hard-coded '01' for first day
         $last_day_this_month  = date('Y-m-t');
 
@@ -368,12 +368,12 @@ class StravaClient
 
         $stats = (new Util())->createActivityStats($stats[0]);
         $run_text = $stats['number_of_activity'] > 1 ? "runs" : "run";
-        $this_month_stats .= "\n✅Completed: " . $stats['number_of_activity'] . " $run_text";
-        $this_month_stats .= "\n✅Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
-        $this_month_stats .= "\n✅Longest Run: " . $stats['longest_distance'] . "km";
-        $this_month_stats .= "\n✅Avg. Pace: " . $stats['average_pace'] . "min/km";
-        $this_month_stats .= "\n✅Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
-        $this_month_stats .= "\n✅Total Time: " . $stats['total_time']. "min";
+        $this_month_stats .= "\n ✅Completed: " . $stats['number_of_activity'] . " $run_text";
+        $this_month_stats .= "\n ✅Total Distance: " . $stats['total_distance'] . "km" . " (Avg.: " . $stats['average_distance'] . "km)";
+        $this_month_stats .= "\n ✅Longest Run: " . $stats['longest_distance'] . "km";
+        $this_month_stats .= "\n ✅Avg. Pace: " . $stats['average_pace'] . "min/km";
+        $this_month_stats .= "\n ✅Total Climb: " . $stats['total_climb'] . "m (Avg.: " . $stats['average_climb'] . "m)";
+        $this_month_stats .= "\n ✅Total Time: " . $stats['total_time']. "min";
 
         return $this_month_stats;
     }
