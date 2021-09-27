@@ -329,7 +329,7 @@ class StravaClient
     }
 
     public function createStats() {
-        return $this->createThisWeekStats() . "\n\n" . $this->createThisMonthStats();
+        return $this->createThisWeekStats() . "\n\n" . $this->createThisMonthStats() . "\n\n";
     }
 
     public function createThisWeekStats(): string
