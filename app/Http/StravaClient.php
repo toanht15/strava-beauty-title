@@ -155,6 +155,7 @@ class StravaClient
     {
         Log::info("Begin create description");
         $type = $this->activity['type'];
+        Log::info($this->activity);
 
         $description = "";
         if (strpos($this->activity['description'], "°C") === false && ($type === "Run" || $type === "Walk")) {
