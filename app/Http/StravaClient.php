@@ -161,9 +161,9 @@ class StravaClient
         if (strpos($this->activity['description'], "°C") === false && ($type === "Run" || $type === "Walk")) {
             // create weather text
             $util = new Util();
-            $lat = $this->activity['start_latitude'];
-            $lon = $this->activity['start_longitude'];
-            $description = "🌤  Today's weather: " . $util->getWeatherInfo($lat, $lon);
+//            $lat = $this->activity['start_latitude'];
+//            $lon = $this->activity['start_longitude'];
+//            $description = "🌤  Today's weather: " . $util->getWeatherInfo($lat, $lon);
         }
 
         if (strpos($this->activity['description'], "Today's quote") == false) {
