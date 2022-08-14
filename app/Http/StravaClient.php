@@ -162,8 +162,10 @@ class StravaClient
             // create weather text
             $util = new Util();
 //            $lat = $this->activity['start_latitude'];
+            $lat = $this->activity['start_latlng'][0];
 //            $lon = $this->activity['start_longitude'];
-//            $description = "🌤  Today's weather: " . $util->getWeatherInfo($lat, $lon);
+            $lon = $this->activity['start_latlng'][1];
+            $description = "🌤  Today's weather: " . $util->getWeatherInfo($lat, $lon);
         }
 
         if (strpos($this->activity['description'], "Today's quote") == false) {
@@ -338,6 +340,7 @@ class StravaClient
         $this_week_stats = "💥💥💥  This Week Summary 💥💥💥";
         $start = (date('D') != 'Mon') ? date('Y-m-d', strtotime('last Monday')) : date('Y-m-d');
         $finish = (date('D') != 'Sun') ? date('Y-m-d', strtotime('next Sunday')) : date('Y-m-d');
+
 
         $stats = Activity::selectRaw('SUM(distance) as total_distance, MAX(distance) as longest_distance, AVG(distance) as average_distance, COUNT(id) as count, AVG(average_speed) as average_speed, SUM(total_elevation_gain) as total_climb, SUM(elapsed_time) as total_time')
             ->where('athlete_id', $this->athlete_id)
