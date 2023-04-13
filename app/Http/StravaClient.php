@@ -23,7 +23,7 @@ class StravaClient
     protected $activity_id;
     protected $access_token;
     protected $refresh_token;
-    protected $activity;
+    public $activity;
 
     public function __construct($athlete_id, $activity_id) {
         $this->athlete_id = $athlete_id;

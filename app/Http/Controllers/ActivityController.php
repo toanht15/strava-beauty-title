@@ -70,7 +70,8 @@ class ActivityController extends Controller
     {
         try {
 //            $stravaClient = new StravaClient(91678383, 7534550874);
-            $stravaClient = new StravaClient(39375936, 7600908993);
+            $stravaClient = new StravaClient(39375936, 8880845763);
+            dd($stravaClient->activity);
 //            $stravaClient->saveActivity();
             $activity = $stravaClient->updateActivity();
             dd($activity);
